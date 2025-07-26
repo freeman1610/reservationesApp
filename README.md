@@ -20,7 +20,7 @@ This is the backend API for a space reservation system, built with Laravel 12. I
 
 1.  **Clone the Repository**
     ```bash
-    git clone [https://github.com/freeman1610/reservationesapp.git](https://github.com/freeman1610/reservationesapp.git)
+    git clone https://github.com/freeman1610/reservationesapp.git
     cd reservationesapp
     ```
 
