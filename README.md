@@ -71,3 +71,40 @@ To run the full test suite, execute the following command. The tests run on an i
 
 ```bash
 docker-compose exec app php artisan test
+```
+## API Documentation
+The API is documented using both Postman and Swagger.
+
+## Postman
+
+1. **Import Collection:**
+
+    Import the PostmanReservationsAPI.json file located in the root of the project into your Postman client.
+
+    2. **Set Base URL:** 
+    The collection uses a {{baseUrl}} variable. Make sure it is set to http://localhost:8000.
+
+    3. **Authentication:**
+*  First, run the Authentication > Login request with valid credentials (e.g., the admin user).
+* The request includes a test script that automatically saves the received access_token to a collection variable named {{token}}.
+*  All protected endpoints are pre-configured to use this {{token}} for Bearer Token authentication.
+
+## Swagger (OpenAPI)
+The Swagger UI provides interactive API documentation directly in your browser.
+
+1. **Access the Documentation:**
+
+    Navigate to http://localhost:8000/api/documentation.
+
+2. **Authorize Requests:**
+*  To test protected endpoints, click the Authorize button at the top of the page.
+*  In the popup, enter your access token in the format Bearer <your_token>. You can get a token from the Login endpoint.
+* You can now test all endpoints directly from the UI.
+
+3. **Generate Documentation:**
+
+    If you make changes to the API annotations in the controller files, you can regenerate the documentation with this command:
+
+    ```bash
+    docker-compose exec app php artisan l5-swagger:generate
+    ```
