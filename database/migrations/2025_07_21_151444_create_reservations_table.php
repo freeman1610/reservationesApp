@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('space_id')->constrained('spaces')->onDelete('cascade');
             $table->foreignId('user_id')->constrained('users')->onDelete('cascade');
+            $table->date('reservation_date');
             $table->dateTime('start_time');
             $table->dateTime('end_time');
             $table->string('purpose')->nullable();

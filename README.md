@@ -1,61 +1,200 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+Cómo Probar la Aplicación USUARIO
+Puedes usar Postman, Insomnia o cualquier cliente HTTP para probar las API.
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+1. Registro de un usuario (por defecto será 'user'):
 
-## About Laravel
+POST /api/register
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+Headers: Content-Type: application/json
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+Body (raw JSON):
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+JSON
 
-## Learning Laravel
+{
+    "name": "Usuario Normal",
+    "email": "user@example.com",
+    "password": "password",
+    "password_confirmation": "password",
+    "role": "user"
+}
+(Puedes omitir role y avatar para que use los valores por defecto)
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+2. Registro de un usuario administrador:
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+POST /api/register
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+Headers: Content-Type: application/json
 
-## Laravel Sponsors
+Body (raw JSON):
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+JSON
 
-### Premium Partners
+{
+    "name": "Admin User",
+    "email": "admin@example.com",
+    "password": "password",
+    "password_confirmation": "password",
+    "role": "admin"
+}
+3. Login de un usuario:
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+POST /api/login
 
-## Contributing
+Headers: Content-Type: application/json
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+Body (raw JSON):
 
-## Code of Conduct
+JSON
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+{
+    "email": "admin@example.com",
+    "password": "password"
+}
+Esto te devolverá un access_token. Guarda este token, lo necesitarás para las rutas protegidas.
 
-## Security Vulnerabilities
+4. Obtener perfil del usuario autenticado:
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+GET /api/profile
 
-## License
+Headers:
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+Content-Type: application/json
+
+Authorization: Bearer <your_access_token>
+
+5. Actualizar perfil del usuario autenticado:
+
+POST /api/profile
+
+Headers:
+
+Content-Type: application/json (o multipart/form-data si subes avatar)
+
+Authorization: Bearer <your_access_token>
+
+Body (raw JSON):
+
+JSON
+
+{
+    "name": "Nuevo Nombre",
+    "email": "new_email@example.com",
+    "remove_avatar": true // Para eliminar el avatar actual y volver al predeterminado
+}
+Para subir un avatar, usa multipart/form-data y añade un campo avatar de tipo file.
+
+6. Obtener todos los usuarios (solo Admin):
+
+GET /api/users
+
+Headers:
+
+Content-Type: application/json
+
+Authorization: Bearer <admin_access_token>
+
+7. Crear un nuevo usuario (solo Admin):
+
+POST /api/users
+
+Headers:
+
+Content-Type: application/json (o multipart/form-data si subes avatar)
+
+Authorization: Bearer <admin_access_token>
+
+Body (raw JSON):
+
+JSON
+
+{
+    "name": "Nuevo Usuario Creado por Admin",
+    "email": "newuser@example.com",
+    "password": "password",
+    "role": "user",
+    "max_simultaneous_reservations": 10
+}
+8. Obtener un usuario por ID (solo Admin):
+
+GET /api/users/{id} (reemplaza {id} con el ID del usuario)
+
+Headers:
+
+Content-Type: application/json
+
+Authorization: Bearer <admin_access_token>
+
+9. Actualizar un usuario por ID (solo Admin):
+
+POST /api/users/{id} (reemplaza {id} con el ID del usuario)
+
+Importante: Usa POST y añade _method: PUT en el body si tu cliente HTTP no soporta PUT con multipart/form-data. Si solo envías JSON, puedes usar PUT.
+
+Headers:
+
+Content-Type: application/json (o multipart/form-data si subes avatar)
+
+Authorization: Bearer <admin_access_token>
+
+Body (raw JSON):
+
+JSON
+
+{
+    "name": "Usuario Actualizado",
+    "email": "updated@example.com",
+    "role": "admin",
+    "password": "newpassword",
+    "remove_avatar": true,
+    "max_simultaneous_reservations": 7,
+    "_method": "PUT"
+}
+10. Eliminar un usuario por ID (solo Admin):
+
+DELETE /api/users/{id} (reemplaza {id} con el ID del usuario)
+
+Headers:
+
+Authorization: Bearer <admin_access_token>
+
+11. Logout:
+
+POST /api/logout
+
+Headers:
+
+Authorization: Bearer <your_access_token>
+
+
+ONLY ADMIN
+
+CREATED SPACE
+URL /api/spaces
+Authorization: Bearer <your_access_token>
+Content-Type: application/json
+Accept: application/json
+METHOD GET 
+{
+    "name": "Sala de Juntas 'Innovación'",
+    "type": "room",
+    "description": "Sala principal para reuniones de equipo y presentaciones a clientes. Equipada con proyector y pizarra.",
+    "capacity": 12,
+    "location": "Piso 3, Ala Norte",
+    "availability": "{\"lunes\": [{\"start\": \"09:00\", \"end\": \"13:00\"}, {\"start\": \"15:00\", \"end\": \"18:00\"}], \"miercoles\": [{\"start\": \"10:00\", \"end\": \"16:00\"}], \"viernes\": [{\"start\": \"09:00\", \"end\": \"20:00\"}]}"
+}
+
+UPDATE SPACE
+URL /api/spaces/{id}
+Authorization: Bearer <your_access_token>
+Content-Type: application/json
+Accept: application/json
+METHOD GET 
+{
+    "name": "Sala de Juntas 'Innovación'",
+    "type": "room",
+    "description": "Sala principal para reuniones de equipo y presentaciones a clientes. Equipada con proyector y pizarra.",
+    "capacity": 12,
+    "location": "Piso 3, Ala Norte",
+    "availability": "{\"lunes\": [{\"start\": \"09:00\", \"end\": \"13:00\"}, {\"start\": \"15:00\", \"end\": \"18:00\"}], \"miercoles\": [{\"start\": \"10:00\", \"end\": \"16:00\"}], \"viernes\": [{\"start\": \"09:00\", \"end\": \"20:00\"}]}"
+}
