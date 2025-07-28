@@ -53,11 +53,11 @@ class ReservationService
      */
     public function cancelReservation(Reservation $reservation): bool
     {
-        if (!in_array($reservation->status, ['pending', 'confirmed'])) {
-            throw new Exception('Solo se pueden cancelar reservaciones con estado pendiente o confirmado.');
-        }
+        // if (!in_array($reservation->status, ['pending', 'confirmed'])) {
+        //     throw new Exception('Solo se pueden cancelar reservaciones con estado pendiente o confirmado.');
+        // }
 
-        return $this->reservationRepository->changeStatus($reservation, 'cancelled');
+        return $this->reservationRepository->delete($reservation);
     }
 
     /**

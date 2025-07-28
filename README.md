@@ -8,6 +8,7 @@ This is the backend API for a space reservation system, built with Laravel 12. I
 * **User Management:** Full CRUD operations for users with distinct 'user' and 'admin' roles.
 * **Space Management:** CRUD functionality for managing reservable spaces (rooms, desks), restricted to administrators.
 * **Reservation Management:** Endpoints for creating, viewing, updating, and canceling reservations.
+* **Webhooks:** Dispatches a webhook notification for newly created reservations.
 * **API Documentation:** Comprehensive documentation available through a Postman collection and auto-generated Swagger UI.
 * **Testing:** A full suite of PHPUnit tests to ensure API reliability.
 
@@ -15,6 +16,7 @@ This is the backend API for a space reservation system, built with Laravel 12. I
 
 * Docker
 * Docker Compose
+* Node.js and npm (for testing webhooks locally)
 
 ## Installation
 
@@ -64,6 +66,85 @@ This is the backend API for a space reservation system, built with Laravel 12. I
     ```
 
 The application is now running and accessible at `http://localhost:8000`.
+
+## Webhooks
+
+The application is configured to send a webhook notification whenever a new reservation is successfully created. This is handled via the `ReservationCreated` event and the `SendNewReservationNotification` listener.
+
+### Webhooks Configuration 
+
+To enable the webhook, add the `RESERVATION_WEBHOOK_URL` variable to your `.env` file. This URL should point to the service that will receive the notification.
+
+For local development, if you are running a listener on your host machine (outside Docker), use the special Docker DNS name:
+
+```bash
+RESERVATION_WEBHOOK_URL=http://host.docker.internal:3000/webhook/reservations
+```
+
+After changing the .env file, remember to clear the configuration cache:
+
+```bash
+docker-compose exec app php artisan config:clear
+docker-compose exec app php artisan event:clear
+```
+
+## Webhooks Testing with a Local Listener
+
+You can easily simulate a service to receive webhooks on your local machine using a simple Node.js Express server.
+
+1. **Create the Listener Project:** In a separate directory (outside of the Laravel project), run the following commands:
+```bash
+mkdir webhook-listener
+cd webhook-listener
+npm init -y
+npm install express
+```
+2. **Create server.js:** Inside the webhook-listener directory, create a file named server.js with the following content:
+
+```bash
+const express = require('express');
+const app = express();
+const port = 3000;
+
+app.use(express.json());
+
+// This route listens for the webhook notifications
+app.post('/webhook/reservations', (req, res) => {
+  console.log('🎉 Webhook Received!');
+  console.log('-------------------------');
+  console.log(JSON.stringify(req.body, null, 2));
+  res.status(200).json({ status: 'received' });
+});
+
+app.listen(port, () => {
+  console.log(`🚀 Webhook listener running at http://localhost:${port}`);
+});
+```
+
+3. **Configure .env for Local Testing:** In your Laravel project's .env file, set the webhook URL to point to this local server using Docker's special DNS name.
+
+4. **Run the Listener: Start the Node.js server from within the webhook-listener directory:**
+
+```bash
+node server.js
+```
+
+**The webhook sends a POST request with a JSON payload in the following format:**
+```bash
+{
+  "event": "reservation.created",
+  "timestamp": "2025-07-28T12:00:00.123456Z",
+  "data": {
+    "id": 1,
+    "user_id": 2,
+    "space_id": 1,
+    "start_time": "2025-08-01 10:00:00",
+    "end_time": "2025-08-01 12:00:00",
+    "user": { "...user object..." },
+    "space": { "...space object..." }
+  }
+}
+```
 
 ## Testing
 
